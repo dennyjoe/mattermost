@@ -9,6 +9,7 @@ networks:
 
 services:
   postgres:
+    container_name: mattermost_postgres
     image: postgres:${POSTGRES_IMAGE_TAG}
     restart: unless-stopped
     security_opt:
@@ -29,10 +30,8 @@ services:
       - "mattermost_backend"
 
   mattermost:
-    depends_on:
-      - postgres
+    container_name: mattermost
     image: mattermost/${MATTERMOST_IMAGE}:${MATTERMOST_IMAGE_TAG}
-
     restart: ${RESTART_POLICY}
     security_opt:
       - no-new-privileges:true
@@ -40,10 +39,6 @@ services:
     read_only: ${MATTERMOST_CONTAINER_READONLY}
     tmpfs:
       - /tmp
-    ports:
-
-      - "8443:8443/tcp"
-      - "8443:8443/udp"
     volumes:
       - ${MATTERMOST_CONFIG_PATH}:/mattermost/config:rw
       - ${MATTERMOST_DATA_PATH}:/mattermost/data:rw
@@ -60,3 +55,5 @@ services:
     networks:
       - "mattermost_backend"
       - "gateway"
+    depends_on:
+      - postgres
